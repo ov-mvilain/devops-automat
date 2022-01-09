@@ -99,7 +99,9 @@ install: brew ansible_local
 # https://brew.sh/
 brew: sudo
 	if [ ! -e /usr/local/bin/brew ]; then \
-		sudo -c "curl -fsSL $(BREW_URL) | sh"; \
+		curl -fsSL $(BREW_URL) -o homebrew.sh
+		chmod 755 homebrew.sh
+		sudo -s "./homebrew.sh"; \
 	else \
 		echo "*** brew already installed ***"; \
 	fi
