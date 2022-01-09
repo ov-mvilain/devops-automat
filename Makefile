@@ -3,7 +3,8 @@
 
 .PHONY : test clean install
 
-DOCKER_COMPOSE_URL = "https://github.com/docker/compose/releases/tag/1.29.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose"
+DOCKER_COMPOSE_URL := "https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose"
+BREW_URL := https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
 
 # test returns blank if running on AWS
 # ifconfig will run on AWS and MacOS
@@ -53,6 +54,7 @@ test:
 	@echo 'OS=<$(OS)>'
 	@echo "IP="$(IP)
 	@echo "docker-compose: "$(DOCKER_COMPOSE_URL)
+	@echo "Homebrew: "$(BREW_URL)
 	@echo "logname:" $(LOGNAME) " sudo_user:" $(SUDO_USER)
 # ------------------------------------------------------------------------ RHEL distros
 ifeq ($(ID),almalinux)
@@ -97,7 +99,9 @@ install: brew ansible_local
 # https://brew.sh/
 brew: sudo
 	if [ ! -e /usr/local/bin/brew ]; then \
-		curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | sh; \
+		sudo -c "curl -fsSL $(BREW_URL) | sh"; \
+	else \
+		echo "*** brew already installed ***"; \
 	fi
 
 
