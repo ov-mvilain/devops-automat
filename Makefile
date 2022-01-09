@@ -16,8 +16,9 @@ endif
 
 # make 3.81 only tests for empty/non-empty string
 APP := $(shell test -e /Applications && echo "Y")
+# Amazon Linux has a /etc/os-release file ID=amzn
 ifeq ($(strip $(APP)),)
-ID := $(shell uname)
+ID := $(shell awk '/^ID=/{print $1}' /etc/os-release | sed -e "s/ID=//" -e 's/"//g')
 VER = $(shell grep "VERSION_ID" /etc/os-release | sed -e 's/VERSION_ID=//' -e 's/"//g')
 OS := $(ID)$(VER)
 IP := $(shell ifconfig | grep -i "UP,BROADCAST" -A6 | grep 'inet ' | sed -e 's/.*netmask.* //')
@@ -26,11 +27,11 @@ else ifeq ($(APP),Y)
 OS=$(shell uname)
 ID := "macos"
 VER := $(shell uname -r)
-IP := $(shell /sbin/ifconfig | grep -i "UP,BROADCAST,SMART,RUNNING,PROMISC" -A7 | awk '/inet /{print $2}')
+IP := $(shell /sbin/ifconfig | grep -i "UP,BROADCAST" -A7 | grep "\tinet "| sed -e "s/ netmask.*//")
 endif
 
 
-RHEL_PKGS := curl epel-release wget vim lsof bind-utils net-tools yum-utils epel-release
+AM_PKGS := bind-utils curl epel-release lsof net-tools yum-utils vim wget
 
 PKGS := $(RHEL_PKGS)
 C7_PKGS := $(RHEL_PKGS) bash-completion
