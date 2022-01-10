@@ -59,6 +59,8 @@ ifeq ($(SUDO_USER),)
 	sudo rm -vf /etc/sudoers.d/$(LOGNAME)
 endif
 
+install: brew ansible
+
 sudo:
 ifeq ($(SUDO_USER),)
 	@echo "Please rerun 'make sudo' to add your account to /etc/sudoers.d/$(LOGNAME)"
@@ -66,12 +68,11 @@ else
 	echo "$(SUDO_USER) ALL = NOPASSWD: ALL" > /etc/sudoers.d/$(SUDO_USER)
 endif
 
-
-install: brew ansible
-
 # install brew package manager...must run make sudo as root first
 # https://brew.sh/
+# only installed on MacOS...does nothing on other OS
 brew: sudo
+ifeq ($(ID),macos)
 	if [ ! -e /usr/local/bin/brew ]; then \
 		curl -fsSL $(BREW_URL) -o homebrew.sh; \
 		chmod 755 homebrew.sh; \
@@ -79,14 +80,15 @@ brew: sudo
 	else \
 		echo "*** brew already installed ***"; \
 	fi
+endif
 
-
-ansible:
+ansible: brew
 ifeq ($(ID),macos)
 	@echo "ansible local: "'<$(OS)>'
 	brew install ansible
 else ifeq ($(ID),amzn)
 	echo "ansible local: "'<$(OS)>'
+	sudo amazon-linux-extras install -y ansible2 epel python3.8
 endif
 
 # fedora 27 and centos8 already has git 2.x installed
@@ -94,8 +96,10 @@ git : git-install git-config
 
 git-install:
 ifeq ($(ID),amzn)
-	@echo "amazon git install"
+	echo "git-install local: "'<$(OS)>'
+	if [[ ! -e /usr/bin/git ]]; then sudo yum install -y git; fi
 else ifeq ($(ID),macos)
+	echo "git-install local: "'<$(OS)>'
 	if [[ ! -e /usr/bin/git ]]; then brew install git; fi
 endif
 
