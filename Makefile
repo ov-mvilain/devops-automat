@@ -4,6 +4,8 @@
 .PHONY : test clean install
 
 BREW_URL := https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+PYTHON3_URL := https://www.python.org/ftp/python/3.9.10/python-3.9.10-macosx10.9.pkg
+PYTHON3_DEST = ~/Downloads/python-3.9.10-macosx10.9.pkg
 
 # test returns blank if running on AWS
 # ifconfig will run on AWS and MacOS
@@ -33,7 +35,7 @@ endif
 RHEL_PKGS := bind-utils curl epel-release lsof net-tools yum-utils vim wget
 MAC_PKGS := $(RHEL_PKGS)
 
-TARGETS :=  install
+TARGETS :=  help
 
 all: $(TARGETS)
 
@@ -44,6 +46,8 @@ test:
 	@echo "IP="$(IP)
 	@echo "Homebrew: "$(BREW_URL)
 	@echo "logname:" $(LOGNAME) " sudo_user:" $(SUDO_USER)
+	@echo "python3_url: "$(PYTHON3_URL)
+	@echo "python3_dest:"$(PYTHON3_DEST)
 # ------------------------------------------------------------------------ RHEL distros
 ifeq ($(ID),macos)
 	@echo "packages= "$(MAC_PKGS)
@@ -53,13 +57,22 @@ else
 	@echo "packages="
 endif
 
+help:
+	@echo This Makefile has the following targets:
+	@echo
+	@echo sudo make sudo -- run this first on MacOS to add the user to the /etc/sudoers.d/ directory
+	@echo make macos     -- run this target to install DevOps tools on a MacOS system needed for automation
+	@echo terraform plan -- configure an EC2 instance in a region, VPC, and subnet
+	@echo terraform apply-- create a configured EC2 instance in a region, VPC, and subnet
+	@echo make automat   -- run this target on an existing EC2 instance to install DevOps tools needed for automation
+
 
 clean:
 ifeq ($(SUDO_USER),)
 	sudo rm -vf /etc/sudoers.d/$(LOGNAME)
 endif
 
-install: brew ansible
+macos: python3 ansible sudo brew
 
 sudo:
 ifeq ($(SUDO_USER),)
@@ -71,7 +84,7 @@ endif
 # install brew package manager...must run make sudo as root first
 # https://brew.sh/
 # only installed on MacOS...does nothing on other OS
-brew: sudo
+brew:
 ifeq ($(ID),macos)
 	if [ ! -e /usr/local/bin/brew ]; then \
 		curl -fsSL $(BREW_URL) -o homebrew.sh; \
@@ -80,15 +93,37 @@ ifeq ($(ID),macos)
 	else \
 		echo "*** brew already installed ***"; \
 	fi
+	brew install awscli azure-cli jq ohmyzsh terraform terragrunt vagrant virtualbox wget yamllint
 endif
 
-ansible: brew
+python3:
+ifeq ($(ID),macos)
+	@echo "python3 local: "'<$(OS)>'
+	@curl -s $(PYTHON3_URL) -o $(PYTHON3_DEST)
+	@sudo installer -pkg $(PYTHON3_DEST) -target /
+	@curl -O https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+	@python3.9 /tmp/get-pip.py
+	# Apple's Xcode defines their own versions of these
+	@for f in pycodestyle pyflakes pylint pyreverse pip pip3; do \
+	  cd /usr/local/bin; \
+	  rm $f; \
+	  ln -s ../../../Library/Frameworks/Python.framework/Versions/3.9/bin/$f; \
+	  done
+	@echo "/Library/Frameworks/Python.framework/Versions/3.9/bin" > /tmp/python
+	@sudo mv -v /tmp/python /etc/paths.d/
+else ifeq ($(ID),amzn)
+	echo "python3 local: "'<$(OS)>'
+	sudo amazon-linux-extras install python3.8
+endif
+
+ansible: python3
 ifeq ($(ID),macos)
 	@echo "ansible local: "'<$(OS)>'
-	brew install ansible
+	@sudo launchctl limit maxfiles unlimited
+	pip3 install ansible
 else ifeq ($(ID),amzn)
 	echo "ansible local: "'<$(OS)>'
-	sudo amazon-linux-extras install -y ansible2 epel python3.8
+	sudo amazon-linux-extras install ansible2
 endif
 
 # fedora 27 and centos8 already has git 2.x installed
