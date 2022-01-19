@@ -43,21 +43,21 @@ Vagrant.configure("2") do |config|
 
   # mac10.15 box for testing MacOS Cataline
   # https://github.com/ramsey/macos-vagrant-box
-  config.vm.define "m15" do |m15|
-    m15.vm.box = "ramsey/macos-catalina"
-    m15.ssh.insert_key = false
-    m15.vm.network 'private_network', ip: '192.168.10.15'
-    m15.vm.hostname = 'm15.test'
-    m15.vm.provision "shell", inline: <<-SHELL
-    #
-    SHELL
-    m15.vm.provision "ansible" do |ansible|
-      ansible.compatibility_mode = "2.0"
-      ansible.playbook = "site.yaml"
-      ansible.inventory_path = "./inventory"
-      # ansible.verbose = "v"
-      # ansible.raw_arguments = [""]
-    end
-  end
+  # config.vm.define "m15" do |m15|
+  #   m15.vm.box = "ramsey/macos-catalina"
+  #   m15.ssh.insert_key = false
+  #   m15.vm.network 'private_network', ip: '192.168.10.15'
+  #   m15.vm.hostname = 'm15.test'
+  #   m15.vm.provision "shell", inline: <<-SHELL
+  #   #
+  #   SHELL
+  #   m15.vm.provision "ansible" do |ansible|
+  #     ansible.compatibility_mode = "2.0"
+  #     ansible.playbook = "site.yaml"
+  #     ansible.inventory_path = "./inventory"
+  #     # ansible.verbose = "v"
+  #     # ansible.raw_arguments = [""]
+  #   end
+  # end
 
 end
