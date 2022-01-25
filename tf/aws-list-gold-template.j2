@@ -12,6 +12,32 @@ variable "aws_domain" {
   default     = "gsvlabs.com" #"aws-vilain.com"
 }
 
+variable "aws_devops_vpc1_cidr" {
+  description = "Common Internet Domain Range for VPC1 [default: 10.1.0.0/16]"
+  default     = "10.1.0.0/16"
+}
+variable "aws_devops_subpub1_cidr" {
+  description = "Common Internet Domain Range for VPC1's PUBLIC subnet [default: 10.1.0.0/20]"
+  default     = "10.1.0.0/20"
+}
+variable "aws_devops_subprv1_cidr" {
+  description = "Common Internet Domain Range for VPC1's PRIVATE subnet [default: 10.1.16.0/20]"
+  default     = "10.1.16.0/20"
+}
+
+variable "aws_devops_vpc2_cidr" {
+  description = "Common Internet Domain Range for VPC2 (default: 10.2.0.0/16)"
+  default     = "10.2.0.0/16"
+}
+variable "aws_devops_subpub2_cidr" {
+  description = "Common Internet Domain Range for VPC2's PUBLIC subnet [default: 10.2.0.0/20]"
+  default     = "10.2.0.0/20"
+}
+variable "aws_devops_subprv2_cidr" {
+  description = "Common Internet Domain Range for VPC2's PRIVATE subnet [default: 10.2.16.0/20]"
+  default     = "10.2.16.0/20"
+}
+
 #========================================== AVAILABILTY ZONES
 variable "aws_avz" {
   description = "{{ region }}-zones"
