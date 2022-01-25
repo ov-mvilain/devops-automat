@@ -19,19 +19,19 @@ data "aws_region" "current" {}
 //================================================== GENERATE KEYS AND SAVE
 resource "tls_private_key" "devops_ssh_key" {
   algorithm = "RSA"
-  rsa_bits  = "2048"
+  rsa_bits  = "4096"
 }
 
 resource "local_file" "devops_pub_ssh_key" {
   content              = tls_private_key.devops_ssh_key.public_key_openssh
-  filename             = "id_rsa.pub"
+  filename             = "devops_rsa.pub"
   directory_permission = "0755"
   file_permission      = "0600"
 }
 
 resource "local_file" "devops_priv_ssh_key" {
   content              = tls_private_key.devops_ssh_key.private_key_pem
-  filename             = "id_rsa"
+  filename             = "devops_rsa"
   directory_permission = "0755"
   file_permission      = "0600"
 }
