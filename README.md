@@ -15,6 +15,7 @@ This project requires
 - a MacOS laptop capable of running MacOS 10.15 or later
 - access to the GSVlabs github repository
 - AWS access keys with sufficient privileges to deploy OpenValley infrastructure
+- 
 
 ## Procedure
 
@@ -29,5 +30,6 @@ On a new MacOS laptop (10.15 or later), setup github access by installing keys i
   - create and manage EC2 instances
   - create and manage RDS databases
   - create and manage VPC networks, subnets, and routes
-  - run automation on AWS
+  - run automation on AWS 
+  - (aws mfa tool)[https://github.com/broamski/aws-mfa]
 
