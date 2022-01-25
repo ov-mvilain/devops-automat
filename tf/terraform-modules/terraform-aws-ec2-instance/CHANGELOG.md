@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 
+<a name="v2.20.0"></a>
+## [v2.20.0] - 2022-01-25
+
+- removed unconditional elastic IP and a-record into DNS
+- removed required input variable domain
 
 <a name="v2.19.0"></a>
 ## [v2.19.0] - 2021-05-12

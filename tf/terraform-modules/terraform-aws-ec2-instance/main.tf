@@ -109,52 +109,52 @@ resource "aws_instance" "this" {
 #     command = "sudo hostname ${aws_route53_record.this[count.index].name}"
 #   }
 
-  depends_on  = [ aws_route53_record.this ]
+  # depends_on  = [ aws_route53_record.this ]
 }
 
-# allocate an elastic IP address
-resource "aws_eip" "this" {
-  count    = var.instance_count
+# # allocate an elastic IP address
+# resource "aws_eip" "this" {
+#   count    = var.instance_count
 
-  vpc      = true
-  tags = merge(
-    {
-      "Name" = var.instance_count > 1 || var.use_num_suffix ? format("%s${var.num_suffix_format}", var.name, count.index + 1) : var.name
-    },
-    var.tags,
-  )
-}
+#   vpc      = true
+#   tags = merge(
+#     {
+#       "Name" = var.instance_count > 1 || var.use_num_suffix ? format("%s${var.num_suffix_format}", var.name, count.index + 1) : var.name
+#     },
+#     var.tags,
+#   )
+# }
 
-resource "aws_eip_association" "eip_assoc" {
-  count         = var.instance_count
+# resource "aws_eip_association" "eip_assoc" {
+#   count         = var.instance_count
 
-  instance_id   = aws_instance.this[count.index].id
-  allocation_id = aws_eip.this[count.index].id
+#   instance_id   = aws_instance.this[count.index].id
+#   allocation_id = aws_eip.this[count.index].id
 
-  depends_on    = [ aws_instance.this ]
-}
+#   depends_on    = [ aws_instance.this ]
+# }
 
-# insert an a record into route53's pre-existing domain
-# (should error with Zone Not Found if domain doesn't exist
-#
-data "aws_route53_zone" "selected" {
-  name         = var.domain
-  private_zone = false
-}
+# # insert an a record into route53's pre-existing domain
+# # (should error with Zone Not Found if domain doesn't exist
+# #
+# data "aws_route53_zone" "selected" {
+#   name         = var.domain
+#   private_zone = false
+# }
 
-resource "aws_route53_record" "this" {
-  count      = var.instance_count
+# resource "aws_route53_record" "this" {
+#   count      = var.instance_count
 
-  zone_id    = data.aws_route53_zone.selected.zone_id
-  name       = var.instance_count > 1 || var.use_num_suffix ? format("%s${var.num_suffix_format}", var.name, count.index + 1) : var.name
+#   zone_id    = data.aws_route53_zone.selected.zone_id
+#   name       = var.instance_count > 1 || var.use_num_suffix ? format("%s${var.num_suffix_format}", var.name, count.index + 1) : var.name
 
-  type       = "A"
-  ttl        = "300"
-  records    = [ aws_eip.this[count.index].public_ip ]
+#   type       = "A"
+#   ttl        = "300"
+#   records    = [ aws_eip.this[count.index].public_ip ]
 
-#   provisioner "local-exec" {
-#   command = "echo ${var.name} ansible_ssh_user=${var.user} ansible_host=${aws_eip.this[count.index].public_ip} >> ${var.inventory}"
-#   }
+# #   provisioner "local-exec" {
+# #   command = "echo ${var.name} ansible_ssh_user=${var.user} ansible_host=${aws_eip.this[count.index].public_ip} >> ${var.inventory}"
+# #   }
 
-  depends_on = [ aws_eip.this ]
-}
+#   depends_on = [ aws_eip.this ]
+# }

@@ -205,11 +205,11 @@ variable "num_suffix_format" {
   default     = "-%d"
 }
 
-variable "domain" {
-  type        = string
-  description = "pre-existing managed DNS domain to assign public IP of created instance"
-  default     = "example.com"
-}
+# variable "domain" {
+#   type        = string
+#   description = "pre-existing managed DNS domain to assign public IP of created instance"
+#   default     = "example.com"
+# }
 #
 # variable "ansible_inventory" {
 #   type        = string
