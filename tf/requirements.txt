@@ -1,0 +1,8 @@
+boto3
+botocore
+jinja2
+jmespath
+
+#MarkupSafe
+#s3transfer
+#python-dateutil
