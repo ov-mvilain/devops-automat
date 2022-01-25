@@ -93,7 +93,7 @@ ifeq ($(ID),macos)
 	else \
 		echo "*** brew already installed ***"; \
 	fi
-	brew install awscli azure-cli jq ohmyzsh terraform terragrunt vagrant virtualbox wget yamllint
+	brew install awscli azure-cli jq terraform terragrunt vagrant virtualbox wget yamllint
 endif
 
 python3:
@@ -115,6 +115,7 @@ else ifeq ($(ID),amzn)
 	echo "python3 local: "'<$(OS)>'
 	sudo amazon-linux-extras install python3.8
 endif
+
 
 ansible: python3
 ifeq ($(ID),macos)
