@@ -28,9 +28,10 @@ Vagrant.configure("2") do |config|
     a2.vm.network 'private_network', ip: '192.168.10.190'
     a2.vm.hostname = 'a2.test'
     a2.vm.provision "shell", inline: <<-SHELL
-      amazon-linux-extras install epel ansible2=2.8 python3.8
+      #!/bin bash
+      amazon-linux-extras install -y epel ansible2=2.8 python3.8
       yum-config-manager --enable epel
-      yum install -y git
+      yum install -y git zsh
     SHELL
     a2.vm.provision "ansible" do |ansible|
       ansible.compatibility_mode = "2.0"
@@ -40,24 +41,5 @@ Vagrant.configure("2") do |config|
       # ansible.raw_arguments = [""]
     end
   end
-
-  # mac10.15 box for testing MacOS Cataline
-  # https://github.com/ramsey/macos-vagrant-box
-  # config.vm.define "m15" do |m15|
-  #   m15.vm.box = "ramsey/macos-catalina"
-  #   m15.ssh.insert_key = false
-  #   m15.vm.network 'private_network', ip: '192.168.10.15'
-  #   m15.vm.hostname = 'm15.test'
-  #   m15.vm.provision "shell", inline: <<-SHELL
-  #   #
-  #   SHELL
-  #   m15.vm.provision "ansible" do |ansible|
-  #     ansible.compatibility_mode = "2.0"
-  #     ansible.playbook = "site.yaml"
-  #     ansible.inventory_path = "./inventory"
-  #     # ansible.verbose = "v"
-  #     # ansible.raw_arguments = [""]
-  #   end
-  # end
 
 end
