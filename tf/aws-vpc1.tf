@@ -67,8 +67,8 @@ resource "aws_route_table_association" "devops_subnet1_rta_pub" {
 //--------- PRIVATE SUBNET with 1 availability zone
 resource "aws_subnet" "devops_subnet1_priv" {
   vpc_id                  = aws_vpc.devops_vpc1.id
-  cidr_block              = var.aws_devops_subprv1_cidr
-  map_public_ip_on_launch = true
+  cidr_block              = var.aws_devops_subpriv1_cidr
+  map_public_ip_on_launch = false
   availability_zone       = var.aws_avz[0]
 
   tags = {
@@ -93,9 +93,14 @@ resource "aws_eip" "devops_nat_eip_ip" {
   vpc            = true
 }
 
+# be sure to DISABLE "source destination check" so private traffic isn't checked
+# https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck
+# https://bobcares.com/blog/update-yum-without-internet-access-on-ec2/
+# https://acloud.guru/forums/aws-certified-developer-associate/discussion/-KWA3sjYYQuoKyORLMnr/ec2-instance-in-private-vpc-subnet-throwing-yum-error
 resource "aws_nat_gateway" "devops_nat" {
-  allocation_id  = aws_eip.devops_nat_eip_ip.id
-  subnet_id      = aws_subnet.devops_subnet1_priv.id
+  allocation_id     = aws_eip.devops_nat_eip_ip.id
+  subnet_id         = aws_subnet.devops_subnet1_priv.id
+  connectivity_type = "public"
 
   tags = {
     Name = "devops_nat",
@@ -104,10 +109,10 @@ resource "aws_nat_gateway" "devops_nat" {
   depends_on     = [ aws_eip.devops_nat_eip_ip ]
 }
 
-# resource "aws_route_table_association" "devops_subnet1_rtb" {
-#   subnet_id      = aws_subnet.devops_subnet1_priv.id
-#   route_table_id = aws_route_table.devops_rtb_priv.id
-# }
+resource "aws_route_table_association" "devops_subnet1_rtb" {
+  subnet_id      = aws_subnet.devops_subnet1_priv.id
+  route_table_id = aws_route_table.devops_rtb_priv.id
+}
 
 //--------- NETWORK ACLs
 ## apply network ACLs to VPC to restrict access to entire VPC
