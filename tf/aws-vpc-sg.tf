@@ -1,5 +1,5 @@
-// aws-vpc-security.tf -- define global aws vpc's security groups & network ACLs
-// for instance-specific secrurity groups see aws-instances.tf
+// aws-vpc-sg.tf -- define global aws vpc's security groups & network ACLs
+// for instance-specific secrurity groups see aws-instance-*.tf
 // ================================================= SECURITY GROUPS
 # apply network ACLs to VPC to restrict access to entire VPC
 # rather Security Groups which are per instance
