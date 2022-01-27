@@ -18,6 +18,7 @@ module "ec2_cluster" {
   monitoring             = true
   vpc_security_group_ids = ["sg-12345678"]
   subnet_id              = "subnet-eddcdzz4"
+  source_dest_check      = false  # for NAT network
 
   tags = {
     Terraform   = "true"

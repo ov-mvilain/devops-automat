@@ -80,6 +80,7 @@ resource "aws_instance" "this" {
     }
   }
 
+  # used for NAT or VPNs (true or false [default: true])
   source_dest_check                    = length(var.network_interface) > 0 ? null : var.source_dest_check
   disable_api_termination              = var.disable_api_termination
   instance_initiated_shutdown_behavior = var.instance_initiated_shutdown_behavior
