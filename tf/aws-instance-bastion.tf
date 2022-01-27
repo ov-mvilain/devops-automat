@@ -39,7 +39,7 @@ module "devops_bastion" {
   }
   user_data = <<-EOF
 #!/bin/bash
-amazon-linux-extras install -y epel ansible2=2.8
+amazon-linux-extras install -y epel ansible2=2.8 python3.8
 yum-config-manager --enable epel
 yum install -y git zsh
 git clone http://github.com/ov-mvilain/automat.git
