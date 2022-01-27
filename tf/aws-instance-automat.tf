@@ -33,26 +33,30 @@ module "devops_automat" {
   vpc_security_group_ids      = [ aws_security_group.devops_automat_sg.id ]
   subnet_id                   = aws_subnet.devops_subnet1_priv.id
   associate_public_ip_address = false
+  source_dest_check           = false
   tags = {
     Terraform   = "true"
     Environment = "automat"
     os          = "am2"
   }
   user_data = <<-EOF
-    #!/bin/bash
-    echo "preserve_hostname: true" >> /etc/cloud/cloud.cfg
+#!/bin/bash
+amazon-linux-extras install -y epel ansible2=2.8 python3.8
+yum-config-manager --enable epel
+yum install -y git zsh
+curl -s https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+sed -i.bak -e "s@$HOME/root@$HOME@" /root/.zshrc
+sudo -u ec2-user curl -s https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+sed -i.bak -e "s@ec2-user:/bin/bash@ec2-user:/bin/zsh@" /etc/passwd
+yum update -y
 
-    amazon-linux-extras install -y epel ansible=2.8 python3.8
-    yum-config-manager --enable epel
-    yum update -y
-    yum install -y git zsh
-    pip3 install aws-mfa
+hostnamectl set-hostname AUTOMAT
   EOF
 }
 
 resource "aws_security_group" "devops_automat_sg" {
   name        = "devops_automat_sg"
-  description = "Allow inbound traffic to only bastion"
+  description = "Allow auto traffic to from bastion"
   vpc_id      = aws_vpc.devops_vpc1.id
 
   tags = {
@@ -60,6 +64,7 @@ resource "aws_security_group" "devops_automat_sg" {
     Terraform = "True"
   }
 }
+//----------------------------------------------------------------------egress
 resource "aws_security_group_rule" "devops_automat_sgr_egress" {
   type              = "egress"
   from_port         = 0
@@ -68,12 +73,71 @@ resource "aws_security_group_rule" "devops_automat_sgr_egress" {
   cidr_blocks       = [ "0.0.0.0/0" ]
   security_group_id = aws_security_group.devops_automat_sg.id
 }
-resource "aws_security_group_rule" "devops_automat_sgr_ssh" {
+
+//----------------------------------------------------------------------ingress
+resource "aws_security_group_rule" "devops_automat_sgr_https" {
   type              = "ingress"
-  description       = "ssh from bastion"
-  from_port         = 22
-  to_port           = 22
+  description       = "HTTPS"
+  from_port         = 443
+  to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = [ var.aws_devops_subpub1_cidr ]
+  cidr_blocks       = [ "0.0.0.0/0" ]
+  security_group_id = aws_security_group.devops_automat_sg.id
+}
+
+# resource "aws_security_group_rule" "devops_automat_sgr_alldb" {
+#   type              = "ingress"
+#   description       = "all-db"
+#   from_port         = 0
+#   to_port           = 65535
+#   protocol          = "tcp"
+#   source            =
+#   cidr_blocks       = [ "0.0.0.0/0" ]
+#   source_security_group_id = database sg
+#   security_group_id = aws_security_group.devops_automat_sg.id
+# }
+resource "aws_security_group_rule" "devops_automat_sgr_http" {
+  type              = "ingress"
+  description       = "HTTPS"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = [ "0.0.0.0/0" ]
+  security_group_id = aws_security_group.devops_automat_sg.id
+}
+resource "aws_security_group_rule" "devops_automat_sgr_https6" {
+  type              = "ingress"
+  description       = "HTTPS IPv6"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  ipv6_cidr_blocks  = [ "::/0" ]
+  security_group_id = aws_security_group.devops_automat_sg.id
+}
+resource "aws_security_group_rule" "devops_automat_sgr_ssh" {
+  type                     = "ingress"
+  description              = "ssh from bastion"
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.devops_bastion_sg.id
+  security_group_id        = aws_security_group.devops_automat_sg.id
+}
+resource "aws_security_group_rule" "devops_automat_sgr_http6" {
+  type              = "ingress"
+  description       = "HTTP IPv6"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  ipv6_cidr_blocks  = [ "::/0" ]
+  security_group_id = aws_security_group.devops_automat_sg.id
+}
+resource "aws_security_group_rule" "devops_automat_sgr_self" {
+  type              = "ingress"
+  description       = "self"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  self              = true
   security_group_id = aws_security_group.devops_automat_sg.id
 }
