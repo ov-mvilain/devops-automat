@@ -34,6 +34,7 @@ data "aws_region" "current" {}
 # }
 
 //================================================== USE PREVIOUSLY GENERATED KEY
+//================================================== will barf if key doesn't exist
 data "local_file" "devops_pub_ssh_key" {
   filename   = "devops_rsa.pub"
 }
