@@ -38,20 +38,23 @@ module "devops_bastion" {
     os          = "am2"
   }
   user_data = <<-EOF
-    #!/bin/bash
-    echo "preserve_hostname: true" >> /etc/cloud/cloud.cfg
+#!/bin/bash
+amazon-linux-extras install -y epel ansible2=2.8 python3.8
+yum-config-manager --enable epel
+yum install -y git zsh
+curl -s https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+sed -i.bak -e "s@$HOME/root@$HOME@" /root/.zshrc
+sudo -u ec2-user curl -s https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+sed -i.bak -e "s@ec2-user:/bin/bash@ec2-user:/bin/zsh@" /etc/passwd
+yum update -y
 
-    amazon-linux-extras install -y epel # ansible=2.8 python3.8
-    yum-config-manager --enable epel
-    yum update -y
-    # yum install -y git zsh
-    # pip3 install aws-mfa
+hostnamectl set-hostname BASTION
   EOF
 }
 
 resource "aws_security_group" "devops_bastion_sg" {
   name        = "devops_bastion_sg"
-  description = "Allow inbound traffic"
+  description = "bastion traffic"
   vpc_id      = aws_vpc.devops_vpc1.id
 
   tags = {
@@ -59,6 +62,8 @@ resource "aws_security_group" "devops_bastion_sg" {
     Terraform = "True"
   }
 }
+
+//----------------------------------------------------------------------egress
 resource "aws_security_group_rule" "devops_bastion_sgr_egress" {
   type              = "egress"
   from_port         = 0
@@ -67,20 +72,31 @@ resource "aws_security_group_rule" "devops_bastion_sgr_egress" {
   cidr_blocks       = [ "0.0.0.0/0" ]
   security_group_id = aws_security_group.devops_bastion_sg.id
 }
-resource "aws_security_group_rule" "devops_bastion_sgr_http" {
+
+//----------------------------------------------------------------------ingress
+# resource "aws_security_group_rule" "devops_bastion_sgr_http" {
+#   type              = "ingress"
+#   description       = "devops http"
+#   from_port         = 80
+#   to_port           = 80
+#   protocol          = "tcp"
+#   cidr_blocks       = [ "0.0.0.0/0" ]
+#   security_group_id = aws_security_group.devops_bastion_sg.id
+# }
+# resource "aws_security_group_rule" "devops_bastion_sgr_https" {
+#   type              = "ingress"
+#   description       = "devops https"
+#   from_port         = 443
+#   to_port           = 443
+#   protocol          = "tcp"
+#   cidr_blocks       = [ "0.0.0.0/0" ]
+#   security_group_id = aws_security_group.devops_bastion_sg.id
+# }
+resource "aws_security_group_rule" "devops_bastion_sgr_all" {
   type              = "ingress"
-  description       = "devops http"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = [ "0.0.0.0/0" ]
-  security_group_id = aws_security_group.devops_bastion_sg.id
-}
-resource "aws_security_group_rule" "devops_bastion_sgr_https" {
-  type              = "ingress"
-  description       = "devops https"
-  from_port         = 443
-  to_port           = 443
+  description       = "devops all"
+  from_port         = 0
+  to_port           = 65535
   protocol          = "tcp"
   cidr_blocks       = [ "0.0.0.0/0" ]
   security_group_id = aws_security_group.devops_bastion_sg.id
@@ -94,11 +110,12 @@ resource "aws_security_group_rule" "devops_bastion_sgr_ssh_att" {
   cidr_blocks       = [ "75.25.136.0/24" ]
   security_group_id = aws_security_group.devops_bastion_sg.id
 }
-#resource "aws_security_group_rule" "devops_bastion_sgr_all" {
-#  type              = "ingress"
-#  from_port         = 0
-#  to_port           = 0
-#  protocol          = "-1"
-#  cidr_blocks       = [ "0.0.0.0/0" ]
-#  security_group_id = aws_security_group.devops_bastion_sg.id
-#}
+resource "aws_security_group_rule" "devops_bastion_sgr_self" {
+  type              = "ingress"
+  description       = "self"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  self              = true
+  security_group_id = aws_security_group.devops_bastion_sg.id
+}
