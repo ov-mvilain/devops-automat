@@ -39,13 +39,18 @@ module "devops_bastion" {
   }
   user_data = <<-EOF
 #!/bin/bash
-amazon-linux-extras install -y epel ansible2=2.8 python3.8
+amazon-linux-extras install -y epel ansible2=2.8
 yum-config-manager --enable epel
 yum install -y git zsh
+git clone http://github.com/ov-mvilain/automat.git
+
 curl -s https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 sed -i.bak -e "s@$HOME/root@$HOME@" /root/.zshrc
-sudo -u ec2-user curl -s https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+cp automat/robbyrussell.zsh-theme /root/.oh-my-zsh/theme/
+rsync -a --chown ec2-user /root/.oh-my-zsh /home/ec2-user
+rsync -av --chown ec2-user /root/.zshrc /home/ec2-user
 sed -i.bak -e "s@ec2-user:/bin/bash@ec2-user:/bin/zsh@" /etc/passwd
+
 yum update -y
 
 hostnamectl set-hostname BASTION
