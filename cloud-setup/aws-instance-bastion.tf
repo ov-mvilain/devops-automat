@@ -46,11 +46,11 @@ git clone http://github.com/ov-mvilain/automat.git
 
 curl -s https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 sed -i.bak -e "s@$HOME/root@$HOME@" /root/.zshrc
-cp automat/robbyrussell.zsh-theme /root/.oh-my-zsh/theme/
+cp ~/automat/robbyrussell.zsh-theme /root/.oh-my-zsh/themes/
 rsync -a --chown ec2-user /root/.oh-my-zsh /home/ec2-user
 rsync -av --chown ec2-user /root/.zshrc /home/ec2-user
 sed -i.bak -e "s@ec2-user:/bin/bash@ec2-user:/bin/zsh@" /etc/passwd
-
+pip3 install aws-mfa
 yum update -y
 
 hostnamectl set-hostname BASTION
