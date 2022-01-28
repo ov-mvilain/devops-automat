@@ -106,13 +106,13 @@ resource "aws_security_group_rule" "devops_bastion_sgr_all" {
   cidr_blocks       = [ "0.0.0.0/0" ]
   security_group_id = aws_security_group.devops_bastion_sg.id
 }
-resource "aws_security_group_rule" "devops_bastion_sgr_ssh_att" {
+resource "aws_security_group_rule" "devops_bastion_sgr_ssh" {
   type              = "ingress"
   description       = "devops ssh att"
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = [ "75.25.136.0/24" ]
+  cidr_blocks       = [ "0.0.0.0/0" ]
   security_group_id = aws_security_group.devops_bastion_sg.id
 }
 resource "aws_security_group_rule" "devops_bastion_sgr_self" {
