@@ -95,8 +95,8 @@ resource "aws_eip" "devops_nat_eip_ip" {
 
 # be sure to DISABLE "source destination check" so private traffic isn't checked
 # https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck
-# https://bobcares.com/blog/update-yum-without-internet-access-on-ec2/
-# https://acloud.guru/forums/aws-certified-developer-associate/discussion/-KWA3sjYYQuoKyORLMnr/ec2-instance-in-private-vpc-subnet-throwing-yum-error
+# NAT should be in a PUBLIC network
+# https://www.youtube.com/watch?v=Yl81_rXbbgA
 resource "aws_nat_gateway" "devops_nat" {
   allocation_id     = aws_eip.devops_nat_eip_ip.id
   subnet_id         = aws_subnet.devops_subnet1_pub.id
