@@ -41,20 +41,26 @@ module "devops_automat" {
   }
   user_data = <<-EOF
 #!/bin/bash
+echo "================================================== $(date) installing epel ansible python 3.8"
 amazon-linux-extras install -y epel ansible2=2.8 python3.8
 yum-config-manager --enable epel
+echo "================================================== $(date) installing git zsh"
 yum install -y git zsh
-git clone http://github.com/ov-mvilain/automat.git
-
+echo "================================================== $(date) cloning automat"
+git clone https://github.com/ov-mvilain/automat.git
+echo "================================================== $(date) installing ohmyzsh and configuring"
 curl -s https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 sed -i.bak -e "s@$HOME/root@$HOME@" /root/.zshrc
 cp automat/robbyrussell.zsh-theme /root/.oh-my-zsh/themes/
 rsync -a --chown ec2-user /root/.oh-my-zsh /home/ec2-user
 rsync -av --chown ec2-user /root/.zshrc /home/ec2-user
+echo "================================================== $(date) setting shell to /bin/zsh"
 sed -i.bak -e "s@ec2-user:/bin/bash@ec2-user:/bin/zsh@" /etc/passwd
+echo "================================================== $(date) installing aws-mfa"
 pip3 install aws-mfa
+echo "================================================== $(date) yum update"
 yum update -y
-
+echo "================================================== $(date) hostnamectl set-hostname"
 hostnamectl set-hostname AUTOMAT
   EOF
 }
