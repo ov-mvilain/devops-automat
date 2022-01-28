@@ -13,6 +13,18 @@ variable "aws_domain" {
   default     = "gsvlabs.com" #"aws-vilain.com"
 }
 
+variable "aws_key_pair" {
+  description = "name of the key pair to check in AWS"
+  type        = string
+  default     = "devops_key"
+}
+variable "aws_ssh_key" {
+  description = "name of the ssh key pair to check into AWS...must pre-exist"
+  type        = string
+  default     = "devops_rsa"
+}
+
+
 variable "aws_devops_vpc1_cidr" {
   description = "Common Internet Domain Range for VPC1 [default: 10.1.0.0/16]"
   default     = "10.1.0.0/16"

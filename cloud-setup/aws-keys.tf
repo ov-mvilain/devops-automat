@@ -36,12 +36,12 @@ data "aws_region" "current" {}
 //================================================== USE PREVIOUSLY GENERATED KEY
 //================================================== will barf if key doesn't exist
 data "local_file" "devops_pub_ssh_key" {
-  filename   = "devops_rsa.pub"
+  filename   = "${var.aws_ssh_key}.pub"
 }
 
-resource "aws_key_pair" "devops_key" {
-  key_name   = "devops_key"
-  public_key = data.local_file.devops_pub_ssh_key.content
+data "aws_key_pair" "devops_key" {
+  key_name   = var.aws_key_pair
+  # public_key = data.local_file.devops_pub_ssh_key.content
 }
 #id - The key pair name.
 #arn - The key pair ARN.

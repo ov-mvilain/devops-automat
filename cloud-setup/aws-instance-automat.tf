@@ -28,7 +28,7 @@ module "devops_automat" {
 
   instance_type               = "t2.micro"
   instance_count              = 1
-  key_name                    = aws_key_pair.devops_key.key_name
+  key_name                    = var.aws_key_pair
   monitoring                  = true
   vpc_security_group_ids      = [ aws_security_group.devops_automat_sg.id ]
   subnet_id                   = aws_subnet.devops_subnet1_priv.id
